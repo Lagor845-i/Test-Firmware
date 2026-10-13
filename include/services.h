@@ -1,22 +1,12 @@
 #pragma once
 
-#include <string>
+#include <Arduino.h>
 
-struct Input {
-  bool a;
-  bool b;
-  bool u;
-  bool d;
-  bool l;
-  bool r;
-  float jsx;
-  float jsy;
-};
+#include "app_api.h"
 
-struct Services {
-  void (*get_display)();
-  void (*read_file)(std::string file_location);
-  void (*send_binary_over_wifi)(std::string ip_address, std::string msg);
-  void (*retrieve_recieved_wifi_data)();
-  Input (*get_input)();
+struct System {
+  std::function<void(String)> systemLog;
+  std::function<void(String)> error;
+  std::function<File(String)> getFile;
+  std::function<void()> getInput;
 };

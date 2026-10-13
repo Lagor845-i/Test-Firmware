@@ -4,7 +4,7 @@
 
 Adafruit_NeoPixel led_strip(LED_COUNT,LED_PIN,NEO_GRB + NEO_KHZ800);
 
-Led_Manager::Led_Manager() {};
+Led_Manager::Led_Manager(System& system_services) {};
 
 void Led_Manager::begin() {
     led_strip.begin();
