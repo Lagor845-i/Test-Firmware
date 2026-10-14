@@ -22,7 +22,7 @@ queueItem Core_Communication_Manager::readQueue() {
     switch (item.operation) {
         case LOG:
             _system_api.systemLog(*static_cast<String*>(item.data));
-            delete item.data;
+            delete &item;
             break;
 
         case SENTQUEUE:

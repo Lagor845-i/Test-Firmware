@@ -1,5 +1,5 @@
 #include "application_manager.h"
-#include "core_api.h"
+
 
 Application_Manager::Application_Manager(QueueHandle_t* queue):_process_queue_out(*static_cast<QueueHandle_t*>(queue)) {
   _app_services = new App;
@@ -7,7 +7,6 @@ Application_Manager::Application_Manager(QueueHandle_t* queue):_process_queue_ou
 }
 
 bool Application_Manager::Start() {
-  this->changeApp(boot_app_location);
   bool running = true;
   while (running) {
     vTaskDelay(pdMS_TO_TICKS(10));
@@ -15,13 +14,15 @@ bool Application_Manager::Start() {
     xQueueReceive(_process_queue_in,&item,0);
     switch (item->operation) {
       case LOG:
-        xQueueReceive(_process_queue_in,);
+
+        
         break;
     }
-
+    File elf_file;
     while (true) {
-      if (this->requestFile(app_location)) {
-
+      if (this->requestFile(boot_app_location)) {
+        queueItem temp;
+        xQueueReceive(_process_queue_in,&temp,0);
         break;
       }
     }
@@ -71,6 +72,6 @@ bool Application_Manager::selectApplication(String app_location) {
 }
 
 bool Application_Manager::quitApplication() {
-  this->changeApp(menu_app_location);
+  _quit_app = true;
   return true;
 }
