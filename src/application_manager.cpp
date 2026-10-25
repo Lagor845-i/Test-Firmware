@@ -1,14 +1,9 @@
 #include "application_manager.h"
-<<<<<<< HEAD
-=======
-
->>>>>>> 439d9c0b2dd8cab375a1649055402f47c6aa835c
 
 extern "C" {
   void* os_api = nullptr;
 }
 
-<<<<<<< HEAD
 Application_Manager::Application_Manager(crossCoreBuffers* buffers):_cross_core_buffers(buffers) {
   printToConsole("Starting Application Manager");
   _app_services = new osApi{};
@@ -46,27 +41,6 @@ void Application_Manager::Start() {
         }
       } while (true);
       first = false;
-=======
-bool Application_Manager::Start() {
-  bool running = true;
-  while (running) {
-    vTaskDelay(pdMS_TO_TICKS(10));
-    queueItem* item;
-    xQueueReceive(_process_queue_in,&item,0);
-    switch (item->operation) {
-      case LOG:
-
-        
-        break;
-    }
-    File elf_file;
-    while (true) {
-      if (this->requestFile(boot_app_location)) {
-        queueItem temp;
-        xQueueReceive(_process_queue_in,&temp,0);
-        break;
-      }
->>>>>>> 439d9c0b2dd8cab375a1649055402f47c6aa835c
     }
   }
 }
@@ -123,11 +97,7 @@ bool Application_Manager::bootFile(uint8_t* file_bytes) {
 }
 
 bool Application_Manager::quitApplication() {
-<<<<<<< HEAD
   esp_elf_deinit(&current_app);
   heap_caps_free(_elf_buffer);
-=======
-  _quit_app = true;
->>>>>>> 439d9c0b2dd8cab375a1649055402f47c6aa835c
   return true;
 }
