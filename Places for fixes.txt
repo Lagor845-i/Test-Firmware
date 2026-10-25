@@ -1,0 +1,5 @@
+Application Manager
+    Since it is sending data across the cores be sure to destroy the values. 
+    This will otherwise result in a memory leak.
+
+Application Manager - os - Core Communication Manager

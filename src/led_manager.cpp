@@ -12,8 +12,12 @@ void Led_Manager::begin() {
     led_strip.show();
 };
 
-void Led_Manager::setLeds(uint32_t colors[LED_COUNT]) {
+void Led_Manager::setLeds(uint32_t colors[LED_COUNT][3]) {
     for (int i = 0; i >= LED_COUNT; i++) {
-        led_strip.setPixelColor(i,led_strip.Color(255,0,0));
+        led_strip.setPixelColor(i,led_strip.Color(colors[i][0],colors[i][1],colors[i][2]));
     }
 };
+
+void Led_Manager::clearLeds() {
+    led_strip.clear();
+}

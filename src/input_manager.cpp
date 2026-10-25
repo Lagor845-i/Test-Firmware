@@ -35,17 +35,18 @@ Input_Manager::Input_Manager(System& system_services) {
     _system_services.systemLog("Inputs Initialized");
     
     //Attempts to initialize the accelerometer.
+    /*
     uint8_t data;
     Wire.begin(SDA_PIN,SCL_PIN,400000);
     Wire.beginTransmission(ACCEL_ADDR);
     Wire.write(0x0D);
     Wire.endTransmission(true);
-    Wire.requestFrom(ACCEL_ADDR,(uint8_t)1);
+    Wire.requestFrom(ACCEL_ADDR,uint8_t(1));
     data = Wire.read();
-    _system_services.systemLog(String(data));
+    _system_services.systemLog(String(data));*/
 };
 
-void Input_Manager::sysGetInput() {
+Input Input_Manager::sysGetInput() {
     stuff.a = digitalRead(A_BUTTON);
     stuff.b = digitalRead(B_BUTTON);
     stuff.u = digitalRead(U_BUTTON);
@@ -54,8 +55,5 @@ void Input_Manager::sysGetInput() {
     stuff.r = digitalRead(R_BUTTON);
     stuff.jsx = analogRead(JOYSTICK_X_PIN);
     stuff.jsy = analogRead(JOYSTICK_Y_PIN);
-}
-
-Input Input_Manager::appGetInput() {
     return stuff;
 }

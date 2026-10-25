@@ -9,28 +9,37 @@ the background, you should be careful to request items before you need
 them. This will keep down the latency in the application.
 
 */
+#pragma once
 
-//Debug
-#define LOG 1
+#define LGFX_USE_V1
+#include <LovyanGFX.hpp>
+#include <os.h>
 
-//Queues
-#define SENTQUEUE 2 // This will only be sent to the core communication manager. 
+struct sendELFApi {
+    bool new_api = false;
+    osApi* os_api;
+};
 
-//Display
-#define DRAWLINE 15
-#define DRAWRECT 16
-#define FILLSCREEN 17
-#define DISPLAYUPDATE 18
+struct requestElfBuffer {
+    bool new_request = false;
+    String file_name;
+    void* file_buffer;
+};
 
-//File Manager
-#define GETFILE 30
-#define GETELFFILE 31
-#define FILERETURN 32
-#define ELFFILERETURN 33
-#define INVALIDFILE 34
+struct elfBuffer {
+    bool elf_ready = false;
+    bool success = false;
+    uint8_t* elf_buffer;
+};
 
+struct consoleLogBuffer {
+    bool print_ready = false;
+    String text;
+};
 
-struct queueItem {
-    uint8_t operation;
-    void* data;
+struct crossCoreBuffers {
+    sendELFApi send_elf_api;
+    requestElfBuffer request_elf_file;
+    elfBuffer recieve_buffer;
+    consoleLogBuffer console_buffer;
 };

@@ -1,7 +1,7 @@
 #include "debug_manager.h"
 
 Debug_Manager::Debug_Manager() {
-    appQueue = QueueHandle_t();
+    
 };
 
 void Debug_Manager::begin(unsigned long serial_speed) {
@@ -29,13 +29,6 @@ void Debug_Manager::systemLog(String msg) {
     }
 };
 
-QueueHandle_t Debug_Manager::getDebugQueue() {
-    return appQueue;
-}
-
 void Debug_Manager::applicationLog(String msg) {
-    String debug_msg;
-    if (xQueueReceive(appQueue,&appQueue,portMAX_DELAY) == pdTRUE) {
-        Serial.println("[Application] ");
-    }
+    Serial.println("[Application] "+msg);
 };

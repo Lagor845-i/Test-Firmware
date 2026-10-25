@@ -12,5 +12,6 @@ class Led_Manager {
     public:
         Led_Manager(System& system_services);
         void begin();
-        void setLeds(uint32_t colors[LED_COUNT]);
+        void setLeds(uint32_t colors[LED_COUNT][3]);
+        void clearLeds();
 };

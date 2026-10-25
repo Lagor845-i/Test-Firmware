@@ -5,8 +5,7 @@
 class Input_Manager {
     public:
         Input_Manager(System& system_services);
-        void sysGetInput();
-        Input appGetInput();
+        Input sysGetInput();
 
     private:
         Input stuff;

@@ -12,9 +12,7 @@ class Debug_Manager {
         void set(bool debug_value);
         void systemLog(String msg);
         void applicationLog(String msg);
-        QueueHandle_t getDebugQueue();
     
     private:
         bool _on = false;
-        QueueHandle_t appQueue;
 };

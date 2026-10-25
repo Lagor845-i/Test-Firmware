@@ -2,34 +2,36 @@
 
 #include <esp_elf.h>
 #include <Arduino.h>
-#include <string>
+#include <string.h>
 
 #include "config.h"
 #include "services.h"
 #include "core_api.h"
+#include "os.h"
+#include "elf_symbols.h"
 
 class Application_Manager {
   public:
-    Application_Manager(QueueHandle_t* queue);
-    bool Start();
+    Application_Manager(crossCoreBuffers* buffers);
+    void Start();
     
-
     //Api calls from application
-    bool requestFile(String file_loc);
-    bool selectApplication(String app_location);
+    bool requestELFFile(String file_loc);
     bool quitApplication();
+    bool printToConsole(String text);
+    bool printToConsoleApp(String text);
   
   private:
-    bool callApi(queueItem item);
-    bool loadFile(File file);
+    bool isElf(File file);
+    bool bootFile(uint8_t* file_bytes);
+    uint8_t* recieveElfFile();
+    File* recieveFile();
+    bool sendAppApi();
 
-    App* _app_services;
+    osApi* _app_services;
+    crossCoreBuffers* _cross_core_buffers;
     String app_folder;
-    String boot_app_location = BOOT_APP;
-    String menu_app_location = BOOT_MENU;
     esp_elf_t current_app;
     String _change_app_to;
     uint8_t* _elf_buffer;
-    QueueHandle_t _process_queue_in;
-    QueueHandle_t _process_queue_out;
 };

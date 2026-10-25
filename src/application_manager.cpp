@@ -1,76 +1,103 @@
 #include "application_manager.h"
-#include "core_api.h"
 
-Application_Manager::Application_Manager(QueueHandle_t* queue):_process_queue_out(*static_cast<QueueHandle_t*>(queue)) {
-  _app_services = new App;
-  _app_services->version = FIRMWARE_VERSION;
+extern "C" {
+  void* os_api = nullptr;
 }
 
-bool Application_Manager::Start() {
-  this->changeApp(boot_app_location);
+Application_Manager::Application_Manager(crossCoreBuffers* buffers):_cross_core_buffers(buffers) {
+  printToConsole("Starting Application Manager");
+  _app_services = new osApi{};
+  _app_services->version = FIRMWARE_VERSION;
+  _app_services->recieve_wifi_ssids.recieve_queue = xQueueCreate(10,sizeof(std::string*));
+  _app_services->send_tcp_over_wifi.send_queue = xQueueCreate(10,sizeof(std::string*));
+  _app_services->request_download.send_queue = xQueueCreate(5,sizeof(std::string*));
+  _app_services->log_queue.send_queue = xQueueCreate(10,sizeof(std::string*));
+  os_api = _app_services;
+  register_custom_elf_symbols();
+}
+
+void Application_Manager::Start() {
+  sendAppApi();
+  printToConsole("Sent App Api");
+  requestELFFile(BOOT_APP);
+  printToConsole("Requested ELF file: " + String(BOOT_APP));
+  bool first = true;
   bool running = true;
   while (running) {
-    vTaskDelay(pdMS_TO_TICKS(10));
-    queueItem* item;
-    xQueueReceive(_process_queue_in,&item,0);
-    switch (item->operation) {
-      case LOG:
-        xQueueReceive(_process_queue_in,);
-        break;
+    if (first) {
+      do {
+        uint8_t* return_buffer = recieveElfFile();
+        _elf_buffer = return_buffer;
+        if (return_buffer == nullptr) {
+          continue;
+        } else {
+          printToConsole("Attempting to boot app");
+          if (bootFile(_elf_buffer)) {
+            printToConsole("Boot successful");
+          } else {
+            printToConsole("Boot Failed!!!");
+          }
+          break;
+        }
+      } while (true);
+      first = false;
     }
-
-    while (true) {
-      if (this->requestFile(app_location)) {
-
-        break;
-      }
-    }
   }
 }
 
-//I need to build something to keep variables alive until they are not needed anymore
-bool Application_Manager::callApi(queueItem item) {
-  return xQueueSend(_process_queue_out,&item,0);
-}
-
-bool Application_Manager::requestFile(String file_loc) {
-  String* file_loc_temp = new String(file_loc);
-  queueItem packet;
-  packet.operation = GETELFFILE;
-  packet.data = file_loc_temp;
-  if (callApi(packet) == pdPASS) {
-    return true;
-  }
-  delete file_loc_temp;
-  return false;
-}
-//Used chatgpt on this function for assistance with the ELF loading.
-bool Application_Manager::loadFile(File elf_file) {
-  if (!elf_file) {
-    elf_file.close();
-    return false;
-  }
-  size_t elf_size = elf_file.size();
-  vTaskDelay(pdMS_TO_TICKS(10));
-  esp_elf_init(&current_app);
-  void* p = heap_caps_malloc(ELF_PSRAM_ALLOCATION_SIZE, MALLOC_CAP_SPIRAM);
-  _elf_buffer = reinterpret_cast<uint8_t *>(p);
-  elf_file.read(_elf_buffer,elf_size);
-  esp_elf_relocate(&current_app,_elf_buffer);
-
-  //Sets the entry for the ELF application. Had to convert it in order for it to be able to plug into a void* function pointer
-  void (*entry)(App*);
-  entry = reinterpret_cast<void (*)(App *)>(esp_elf_find_symbol("this_app_main"));
-  entry(_app_services);
-
+bool Application_Manager::sendAppApi() {
+  _cross_core_buffers->send_elf_api.os_api = _app_services;
+  _cross_core_buffers->send_elf_api.new_api = true;
   return true;
 }
 
-bool Application_Manager::selectApplication(String app_location) {
+bool Application_Manager::printToConsole(String text) {
+  if (_cross_core_buffers->console_buffer.print_ready == false) {
+    _cross_core_buffers->console_buffer.text = text;
+    _cross_core_buffers->console_buffer.print_ready = true;
+    return true;
+  } return false;
+}
+
+bool Application_Manager::isElf(File file) {
+  if (String(file.name()).endsWith(".app")) {return true;}
+  return false;
+}
+
+bool Application_Manager::requestELFFile(String file_name) {
+  String temp = String(APP_FOLDER + file_name);
+  _cross_core_buffers->request_elf_file.file_name = temp;
+  _cross_core_buffers->request_elf_file.new_request = true;
+  return true;
+}
+
+uint8_t* Application_Manager::recieveElfFile() {
+  if (_cross_core_buffers->recieve_buffer.elf_ready) {
+    _cross_core_buffers->recieve_buffer.elf_ready = false;
+    return _cross_core_buffers->recieve_buffer.elf_buffer;
+  }
+  return nullptr;
+}
+
+//Used chatgpt on this function for assistance with the ELF loading.
+bool Application_Manager::bootFile(uint8_t* file_bytes) {
+  esp_elf_init(&current_app);
+
+  if (esp_elf_relocate(&current_app,file_bytes) != ESP_OK) {
+    printToConsole("Invalid Elf Configuration");
+    return false;
+  }
+
+  //Sets the entry for the ELF application. Had to convert it in order for it to be able to plug into a void* function pointer
+  if (esp_elf_request(&current_app,0,0,nullptr)) {
+    printToConsole("Failed to Boot ELF");
+    return false;
+  }
   return true;
 }
 
 bool Application_Manager::quitApplication() {
-  this->changeApp(menu_app_location);
+  esp_elf_deinit(&current_app);
+  heap_caps_free(_elf_buffer);
   return true;
 }
