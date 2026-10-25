@@ -16,4 +16,5 @@ class Core_Communication_Manager {
         crossCoreBuffers* _cross_core_buffer;
         osApi* _os_api = nullptr;
         bool _recieved_api = false;
+        bool _first = true;
 };

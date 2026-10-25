@@ -18,6 +18,11 @@
 #define MAXQUEUESIZE 10
 
 //Notification settings
-#define NOTIFICATION_WIDTH 50
 #define NOTIFICATION_HEIGHT 10
 #define NOTIFICATION_TEXT_SIZE 2
+#define NOTIFICATION_PIXELS_PER_CHARACTER 5
+#define NOTIFICATION_Y_HEIGHT 5
+#define NOTIFICATION_X_OFFSET 5
+
+//Contols how often the core communication manager loops
+#define MAIN_LOOP_DELAY 4

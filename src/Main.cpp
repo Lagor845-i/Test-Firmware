@@ -73,6 +73,6 @@ void setup() {
 }
 
 void loop() {
-  vTaskDelay(4);
+  vTaskDelay(MAIN_LOOP_DELAY);
   core_communication_manager->checkInput();
 }

@@ -34,10 +34,4 @@ class Application_Manager {
     esp_elf_t current_app;
     String _change_app_to;
     uint8_t* _elf_buffer;
-<<<<<<< HEAD
-=======
-    bool _quit_app = false;
-    QueueHandle_t _process_queue_in;
-    QueueHandle_t _process_queue_out;
->>>>>>> 439d9c0b2dd8cab375a1649055402f47c6aa835c
 };

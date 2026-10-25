@@ -20,15 +20,16 @@ public:
 
     //Display operations
     void fill(uint16_t color);
-    void uploadDisplayBuffer(LGFX_Sprite* sprite,int x_loc,int y_loc);
-    void sendNotification(String* notification,unsigned long* time_limit);
+    void setDisplayBuffer(LGFX_Sprite* sprite);
+    void updateDisplay();
+    void sendNotification(String notification,int time_limit);
     void displayNotification();
     void error(String error);
     bool setBackground(LGFX_Sprite sprite);
 
 private:
     void drawTextToDisplay(String text,int forground,int x,int y);
-    void drawNotificationText(LGFX_Sprite* buffer, int x, int y);
+    void drawNotificationText();
 
     //Window width and height
     uint16_t _width;
@@ -37,10 +38,12 @@ private:
     //Allows this to call functions from around the system if needed
     System& _system_services;
 
+    LGFX_Sprite* _display_buffer;
+
     //Notification display data
     bool _notification;
-    String* _notification_text;
+    String _notification_text;
     time_t _notification_timer_start = 0;
     LGFX_Sprite _notification_sprite;
-    unsigned long* _notification_time_limit;
+    int _notification_time_limit;
 };
